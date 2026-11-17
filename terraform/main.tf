@@ -19,16 +19,6 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-resource "aws_ecr_repository" "python_webapp" {
-  name                 = "python-webapp"
-  image_tag_mutability = "MUTABLE"
-  force_delete         = true
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
 resource "aws_lightsail_container_service" "python_webapp_service" {
   name        = "python-webapp-service"
   power       = "nano"
