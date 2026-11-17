@@ -88,5 +88,5 @@ jobs:
       run: |
         aws lightsail create-container-service-deployment \
           --service-name python-webapp-service \
-          --containers "{\"app\":{\"image\":\"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\",\"ports\":{\"80\":\"HTTP\"}}}" \
-          --public-endpoint "{\"containerName\":\"app\",\"containerPort\":80}"
+          --containers "{\"app\":{\"image\":\"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\",\"ports\":{\"8080\":\"HTTP\"}}}" \
+          --public-endpoint "{\"containerName\":\"app\",\"containerPort\":8080}"
