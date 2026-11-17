@@ -50,7 +50,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.0.1
+        terraform_version: 1.5.7
         terraform_wrapper: false
 
     - name: Terraform Init
@@ -89,4 +89,4 @@ jobs:
         aws lightsail create-container-service-deployment \
           --service-name python-webapp-service \
           --containers "{\"app\":{\"image\":\"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\",\"ports\":{\"8080\":\"HTTP\"}}}" \
-          --public-endpoint "{\"containerName\":\"app\",\"containerPort\":8080,\"healthCheck\":{\"path\":\"/\",\"intervalSeconds\":10,\"timeoutSeconds\":5,\"healthyThreshold\":2,\"unhealthyThreshold\":3,\"successCodes\":\"200-399\"}}"  
+          --public-endpoint "{\"containerName\":\"app\",\"containerPort\":8080,\"healthCheck\":{\"path\":\"/\",\"intervalSeconds\":10,\"timeoutSeconds\":5,\"healthyThreshold\":2,\"unhealthyThreshold\":3,\"successCodes\":\"200-399\"}}"
