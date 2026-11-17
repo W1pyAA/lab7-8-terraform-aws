@@ -6,51 +6,31 @@ terraform {
       version = "~> 5.0"
     }
   }
+  backend "s3" {
+    bucket         = "lab-my-tf-state-w1pyaa"
+    key            = "terraform.tfstate"
+    region         = "eu-central-1"
+    dynamodb_table = "lab-my-tf-lockid"
+  }
 }
 
-# Configure the AWS provider
 provider "aws" {
   region = "eu-central-1"
 }
 
-resource "aws_security_group" "web_app" {
-  name        = "web_app"
-  description = "security group"
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_lightsail_container_service" "python_webapp_service" {
+  name        = "python-webapp-service"
+  power       = "nano"
+  scale       = 1
+  is_disabled = false
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  private_registry_access {
+    ecr_image_puller_role {
+      is_active = true
+    }
   }
 
   tags = {
-    Name = "web_app"
+    Name = "python_webapp_service"
   }
-}
-
-resource "aws_instance" "webapp_instance" {
-  ami                    = "ami-0669b163befffbdfc"
-  instance_type          = "t3.micro"
-  vpc_security_group_ids = [aws_security_group.web_app.id]
-  tags = {
-    Name = "webapp_instance"
-  }
-}
-
-output "instance_public_ip" {
-  value     = aws_instance.webapp_instance.public_ip
-  sensitive = true
 }
