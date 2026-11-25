@@ -22,19 +22,23 @@ provider "aws" {
 variable "catalog_image_uri" {
   description = "Full ECR URI for minishop-catalog image"
   type        = string
+  default     = ""
 }
 
 variable "order_image_uri" {
   description = "Full ECR URI for minishop-order image"
   type        = string
+  default     = ""
 }
 
-data "aws_ecr_repository" "catalog" {
-  name = "minishop-catalog"
+resource "aws_ecr_repository" "catalog" {
+  name         = "minishop-catalog"
+  force_delete = true
 }
 
-data "aws_ecr_repository" "order" {
-  name = "minishop-order"
+resource "aws_ecr_repository" "order" {
+  name         = "minishop-order"
+  force_delete = true
 }
 
 resource "aws_lightsail_container_service" "minishop_service" {
@@ -69,12 +73,12 @@ data "aws_iam_policy_document" "ecr_lightsail_pull" {
 }
 
 resource "aws_ecr_repository_policy" "catalog_policy" {
-  repository = data.aws_ecr_repository.catalog.name
+  repository = aws_ecr_repository.catalog.name
   policy     = data.aws_iam_policy_document.ecr_lightsail_pull.json
 }
 
 resource "aws_ecr_repository_policy" "order_policy" {
-  repository = data.aws_ecr_repository.order.name
+  repository = aws_ecr_repository.order.name
   policy     = data.aws_iam_policy_document.ecr_lightsail_pull.json
 }
 
