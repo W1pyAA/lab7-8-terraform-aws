@@ -29,6 +29,14 @@ variable "order_image_uri" {
   type        = string
 }
 
+data "aws_ecr_repository" "catalog" {
+  name = "minishop-catalog"
+}
+
+data "aws_ecr_repository" "order" {
+  name = "minishop-order"
+}
+
 resource "aws_lightsail_container_service" "minishop_service" {
   name        = "minishop-service"
   power       = "small"
@@ -42,7 +50,40 @@ resource "aws_lightsail_container_service" "minishop_service" {
   }
 }
 
+data "aws_iam_policy_document" "ecr_lightsail_pull" {
+  statement {
+    sid    = "AllowLightsailPull"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_lightsail_container_service.minishop_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn]
+    }
+
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability"
+    ]
+  }
+}
+
+resource "aws_ecr_repository_policy" "catalog_policy" {
+  repository = data.aws_ecr_repository.catalog.name
+  policy     = data.aws_iam_policy_document.ecr_lightsail_pull.json
+}
+
+resource "aws_ecr_repository_policy" "order_policy" {
+  repository = data.aws_ecr_repository.order.name
+  policy     = data.aws_iam_policy_document.ecr_lightsail_pull.json
+}
+
 resource "aws_lightsail_container_service_deployment_version" "minishop_deployment" {
+  depends_on = [
+    aws_ecr_repository_policy.catalog_policy,
+    aws_ecr_repository_policy.order_policy
+  ]
+
   service_name = aws_lightsail_container_service.minishop_service.name
 
   container {
